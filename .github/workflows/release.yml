@@ -69,8 +69,10 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "docker-compose.yml"
+          source: "./docker-compose.yml"
+          tar_disable: true  # передаём файл без упаковки TAR
           target: "/root/3xui-shop/docker-compose.yml"
+
 
       - name: Pull, stop, and start containers
         uses: appleboy/ssh-action@v1.0.1
