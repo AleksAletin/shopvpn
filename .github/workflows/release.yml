@@ -72,8 +72,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           source: "./docker-compose.yml"
-          target: "/root/3xui-shop/docker-compose.yml"
-
+          target: "/root/3xui-shop/"
+          rm: true            # предварительно удаляем файл, если уже есть                 # перезаписываем существующий файл
+          debug: true
 
       - name: Pull, stop, and start containers
         uses: appleboy/ssh-action@v1.0.1
