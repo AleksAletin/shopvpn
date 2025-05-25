@@ -56,3 +56,32 @@ jobs:
         tags:   ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         platforms: linux/amd64,linux/arm64   # уберите/добавьте нужные архитектуры
+
+  deploy:
+    needs: build-and-push         # выполняется только после успешной сборки
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Upload docker‑compose.yml на сервер
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: "docker-compose.yml"
+          target: "/root/3xui-shop/docker-compose.yml"
+
+      - name: Pull, stop, and start containers
+        uses: appleboy/ssh-action@v1.0.1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd /root/3xui-shop
+            docker compose pull            # скачиваем свежие образы
+            docker compose stop            # останавливаем текущие контейнеры
+            docker compose up -d --remove-orphans   # запускаем в фоне
